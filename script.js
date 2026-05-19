@@ -48,7 +48,7 @@ function goTo(idx) {
   dots.forEach((d, i) => d.classList.toggle('active', i === current));
 }
 
-function startTimer() { timer = setInterval(() => goTo(current + 1), 4800); }
+function startTimer() { timer = setInterval(() => goTo(current + 1), 2500); }
 function resetTimer()  { clearInterval(timer); startTimer(); }
 
 const carouselEl = document.getElementById('carousel');
