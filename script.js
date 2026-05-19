@@ -1,24 +1,19 @@
 // ── Carousel ──────────────────────────────────────────────────
 const track  = document.getElementById('carouselTrack');
 const dotsContainer = document.getElementById('carouselDots');
-const imageFiles = [
-  'banana.jpg',
-  'city.jpg',
-  'culture.jpg',
-  'food.jpg',
-  'overpass.jpg',
-  'phillips.jpg',
-  'pipes.jpg',
-  'rooftop.jpg',
-  'simon.jpg',
-  'tour.jpg'
-];
 let dots;
 let TOTAL;
 let current = 0;
 let timer;
 
-function buildCarousel() {
+function shuffleInPlace(list) {
+  for (let i = list.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [list[i], list[j]] = [list[j], list[i]];
+  }
+}
+
+function buildCarousel(imageFiles) {
   track.innerHTML = '';
   dotsContainer.innerHTML = '';
 
@@ -46,20 +41,8 @@ function buildCarousel() {
   TOTAL = dots.length;
 }
 
-function shuffleInPlace(list) {
-  for (let i = list.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [list[i], list[j]] = [list[j], list[i]];
-  }
-}
-
-buildCarousel();
-
 function goTo(idx) {
-  if (!TOTAL) {
-    return;
-  }
-
+  if (!TOTAL) return;
   current = ((idx % TOTAL) + TOTAL) % TOTAL;
   track.style.transform = `translateX(-${current * 100}%)`;
   dots.forEach((d, i) => d.classList.toggle('active', i === current));
@@ -68,15 +51,20 @@ function goTo(idx) {
 function startTimer() { timer = setInterval(() => goTo(current + 1), 4800); }
 function resetTimer()  { clearInterval(timer); startTimer(); }
 
-document.getElementById('prevBtn').addEventListener('click', () => { goTo(current - 1); resetTimer(); });
-document.getElementById('nextBtn').addEventListener('click', () => { goTo(current + 1); resetTimer(); });
-dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.index); resetTimer(); }));
-
 const carouselEl = document.getElementById('carousel');
 carouselEl.addEventListener('mouseenter', () => clearInterval(timer));
 carouselEl.addEventListener('mouseleave', startTimer);
 
-startTimer();
+document.getElementById('prevBtn').addEventListener('click', () => { goTo(current - 1); resetTimer(); });
+document.getElementById('nextBtn').addEventListener('click', () => { goTo(current + 1); resetTimer(); });
+
+fetch('assets/images/general-images/manifest.json')
+  .then(r => r.json())
+  .then(imageFiles => {
+    buildCarousel(imageFiles);
+    dots.forEach(d => d.addEventListener('click', () => { goTo(+d.dataset.index); resetTimer(); }));
+    startTimer();
+  });
 
 // ── Day navigation ────────────────────────────────────────────
 const chips       = document.querySelectorAll('.chip');
